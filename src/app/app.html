@@ -1,1 +1,12 @@
-<router-outlet />
+<div class="main-container">
+  <header style="background-color: blue">
+    <app-header></app-header>
+  </header>
+  <main style="background-color: rgb(255, 166, 0)">
+    <router-outlet />
+    <h1>{{ title() }}</h1>
+  </main>
+  <footer style="background-color: rgb(218, 118, 118)">
+    <app-footer></app-footer>
+  </footer>
+</div>
