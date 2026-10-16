@@ -1,0 +1,27 @@
+.header {
+  &-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 1rem;
+    margin: 1rem;
+  }
+
+  &-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+}
+
+img {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.25rem;
+}
+.icono-github {
+  margin-left: auto; /* Absorbe TODO el espacio disponible a su izquierda */
+}
