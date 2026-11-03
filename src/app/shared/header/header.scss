@@ -1,19 +1,15 @@
+@use '../../../styles/variables.scss' as v;
 .header {
-  &-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: row;
-    gap: 1rem;
-    margin: 1rem;
-  }
-
+  &-content,
   &-logo {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: row;
-    gap: 0.5rem;
+    gap: 1rem;
+  }
+  &-content {
+    margin-left: 1rem;
   }
 }
 
@@ -22,6 +18,17 @@ img {
   height: 2rem;
   border-radius: 0.25rem;
 }
-.icono-github {
-  margin-left: auto; /* Absorbe TODO el espacio disponible a su izquierda */
+.icono {
+  &-github {
+    margin-left: auto; /* Absorbe TODO el espacio disponible a su izquierda */
+    :hover {
+      color: v.$TextoResaltado;
+    }
+  }
+  &-portfolio {
+    margin-right: 1rem; /* Absorbe TODO el espacio disponible a su derecha */
+    :hover {
+      color: v.$TextoResaltado;
+    }
+  }
 }
