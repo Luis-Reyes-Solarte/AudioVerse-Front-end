@@ -9,8 +9,8 @@ a futuro, por medio de inteligencia artificial.
 
 ## Tecnologías usadas
 
-- OptimusUI: `ng add @openng/optimus-ui`.
-- Iconos: `npm install @openng/icons`.
+- OptimusUI.
+- Iconos.
 
 ## Requisitos
 
@@ -25,11 +25,11 @@ a futuro, por medio de inteligencia artificial.
 git clone https://github.com
 
 # Entrar al directorio
-cd mi-proyecto-angular
+cd front-end
 
 # Instalar dependencias
-npm install
-
+ng add @openng/optimus-ui
+npm install @openng/icons
 ```
 
 ## Servidor de desarrollo
