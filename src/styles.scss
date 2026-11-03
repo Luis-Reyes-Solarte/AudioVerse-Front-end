@@ -6,6 +6,8 @@ body {
   height: 100%;
   margin: 0;
   background-color: v.$FondoPrincipal;
+  font-size: v.$TamanoFuente;
+  color: v.$TextoPrincipal;
 }
 header {
   border-bottom: 1px solid v.$Bordes;
