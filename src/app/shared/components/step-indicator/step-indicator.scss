@@ -1,0 +1,58 @@
+@use '../../../../styles/variables' as v;
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 2.25rem;
+  flex-wrap: wrap;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: v.$TextoTerciario;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+
+  .step-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background-color: rgba(v.$TextoTerciario, 0.15);
+    color: v.$TextoSecundario;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  &.active {
+    color: v.$TextoPrincipal;
+
+    .step-badge {
+      background-color: v.$ColorBoton-PuntosProgreso;
+      color: v.$TextoPrincipal;
+      box-shadow: 0 0 12px rgba(v.$ColorBoton-PuntosProgreso, 0.5);
+    }
+  }
+
+  &.completed {
+    color: v.$TextoSecundario;
+
+    .step-badge {
+      background-color: v.$ResaltadoObjetos;
+      color: v.$TextoPrincipal;
+    }
+  }
+}
+
+.step-divider {
+  width: 2rem;
+  height: 1px;
+  background-color: rgba(v.$TextoTerciario, 0.3);
+}
