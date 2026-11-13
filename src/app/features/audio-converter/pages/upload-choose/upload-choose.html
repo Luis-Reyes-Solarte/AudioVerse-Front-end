@@ -1,1 +1,139 @@
-<p>upload-choose works!</p>
+<section class="upload-page">
+  <!-- Stepper superior -->
+  <app-step-indicator [currentStep]="1" />
+
+  <!-- Encabezado Hero -->
+  <header class="hero-header">
+    <h1>Convert &amp; Transcribe Your Audio Instantly.</h1>
+    <p class="subtitle">
+      One file. Two possibilities. Change its format or turn every word into text.
+    </p>
+  </header>
+
+  <!-- Zona Drag & Drop -->
+  <div
+    class="dropzone"
+    [class.dragging]="isDragging()"
+    [class.has-file]="selectedFile() !== null"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+    (click)="fileInput.click()"
+    role="button"
+    tabindex="0"
+    (keydown.enter)="fileInput.click()"
+  >
+    <input
+      #fileInput
+      type="file"
+      accept="audio/*,video/*"
+      hidden
+      (change)="onFileInputChange($event)"
+    />
+
+    @if (!selectedFile()) {
+      <div class="dropzone-icon">
+        <i class="oi oi-waveform" aria-hidden="true"></i>
+      </div>
+      <p class="dropzone-title">Drag &amp; drop your audio here, or <span>browse files</span></p>
+      <p class="dropzone-hint">Audio files only · Up to {{ maxFileSizeLabel }} per file</p>
+
+      <div class="format-badges">
+        @for (badge of quickBadges; track badge) {
+          <span class="badge">{{ badge }}</span>
+        }
+      </div>
+    } @else {
+      <div class="selected-file-card">
+        <div class="file-icon">
+          <i class="oi oi-music" aria-hidden="true"></i>
+        </div>
+        <div class="file-details">
+          <span class="file-name">{{ selectedFile()!.name }}</span>
+          <span class="file-size">{{ formatFileSize(selectedFile()!.size) }}</span>
+        </div>
+        <button
+          type="button"
+          class="btn-remove"
+          (click)="removeFile($event)"
+          title="Quitar archivo"
+        >
+          ✕
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Mensaje de error de validación o API -->
+  @if (errorMessage()) {
+    <div class="error-banner" role="alert">
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- Tarjetas de selección de operación -->
+  <div class="operations-grid">
+    <!-- Opción 1: Convertir Audio -->
+    <div
+      class="operation-card"
+      [class.selected]="selectedOperation() === 'convert'"
+      (click)="selectOperation('convert')"
+    >
+      <div class="card-header">
+        <div class="card-title">
+          <i class="oi oi-waveform" aria-hidden="true"></i>
+          <h2>Convert audio</h2>
+        </div>
+        <span class="radio-circle" [class.checked]="selectedOperation() === 'convert'"></span>
+      </div>
+
+      <div class="select-wrapper" (click)="$event.stopPropagation()">
+        <select
+          aria-label="Convert to format"
+          [value]="selectedFormat()"
+          (change)="onFormatChange($event)"
+        >
+          <option value="" disabled selected>Convert to...</option>
+          @for (fmt of availableFormats(); track fmt.value) {
+            <option [value]="fmt.value">{{ fmt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <p class="card-footer-hint">Available formats: {{ availableFormatsSummary() }}</p>
+    </div>
+
+    <!-- Opción 2: Transcribir a Texto (Deshabilitada / Próximamente) -->
+    <div class="operation-card disabled" aria-disabled="true">
+      <div class="card-header">
+        <div class="card-title">
+          <i class="oi oi-sparkles" aria-hidden="true"></i>
+          <h2>Transcribe to Text</h2>
+        </div>
+        <span class="radio-circle"></span>
+      </div>
+
+      <p class="card-description">
+        Turn speech into clear, editable text. Great for interviews, meetings, and ideas.
+      </p>
+
+      <div class="ai-tag">
+        <span class="dot"></span>
+        <span>Powered by AI · Coming soon</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón de acción principal -->
+  <div class="action-area">
+    <button type="button" class="btn-process" [disabled]="!canProcess()" (click)="processAudio()">
+      @if (isSubmitting()) {
+        <span>Converting audio...</span>
+      } @else {
+        <span>→ Process Audio</span>
+      }
+    </button>
+
+    <p class="action-helper">Upload an audio file and choose an operation to continue.</p>
+  </div>
+</section>
