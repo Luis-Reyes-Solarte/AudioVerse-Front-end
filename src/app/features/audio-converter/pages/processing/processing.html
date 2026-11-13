@@ -1,1 +1,148 @@
-<p>processing works!</p>
+<section class="processing-page">
+  <!-- Stepper superior en paso 2 -->
+  <app-step-indicator [currentStep]="2" />
+
+  <!-- Encabezado Hero -->
+  <header class="hero-header">
+    <h1>Your audio is in good hands.</h1>
+    <p class="subtitle">We're converting your file. Keep this page open — it won't take long.</p>
+  </header>
+
+  <!-- Contenedor principal homologado con upload-choose -->
+  <div class="main-content">
+    <div class="main-content-inner">
+      <!-- Tarjeta de resumen del archivo en proceso -->
+      <div class="file-summary-card">
+        <div class="file-info-left">
+          <div class="file-badge-icon">
+            <img src="icons/Logo-AudioVerse.png" alt="Audio file" />
+          </div>
+          <div class="file-meta">
+            <span class="file-name">{{ file()?.name }}</span>
+            <span class="file-submeta">
+              {{ formattedSize() }}
+              @if (durationLabel()) {
+                <span> · {{ durationLabel() }}</span>
+              }
+            </span>
+          </div>
+        </div>
+
+        <div class="format-transition">
+          <span class="fmt-pill">{{ sourceFormatLabel() }}</span>
+          <span class="fmt-arrow">→</span>
+          <span class="fmt-pill target">{{ targetFormatLabel() }}</span>
+        </div>
+      </div>
+
+      <!-- Animación central de ondas -->
+      <div class="waveform-stage">
+        <div class="waveform-bars" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <h2>Converting audio formats...</h2>
+      </div>
+
+      <!-- Barra de progreso con OptimusUI -->
+      <div class="progress-section">
+        <div class="progress-labels">
+          <span class="progress-caption">Optimizing your audio for {{ targetFormatLabel() }}</span>
+          <span class="progress-percent">{{ progress() }}%</span>
+        </div>
+
+        <p-progressbar [value]="progress()" [showValue]="false" styleClass="audioverse-progress" />
+      </div>
+
+      <!-- Lista de etapas del proceso -->
+      <div class="stages-list">
+        <!-- Etapa 1 -->
+        <div class="stage-item" [class]="uploadStageStatus()">
+          <div class="stage-left">
+            <span class="stage-indicator">
+              @if (uploadStageStatus() === 'complete') {
+                ✓
+              } @else {
+                <span class="inner-dot"></span>
+              }
+            </span>
+            <div class="stage-texts">
+              <span class="stage-title">File uploaded</span>
+              <span class="stage-desc">Audio received securely</span>
+            </div>
+          </div>
+          <span class="stage-status-label">
+            {{ uploadStageStatus() === 'complete' ? 'Complete' : 'In progress' }}
+          </span>
+        </div>
+
+        <!-- Etapa 2 -->
+        <div class="stage-item" [class]="convertStageStatus()">
+          <div class="stage-left">
+            <span class="stage-indicator">
+              @if (convertStageStatus() === 'complete') {
+                ✓
+              } @else {
+                <span class="inner-dot"></span>
+              }
+            </span>
+            <div class="stage-texts">
+              <span class="stage-title">Convert to {{ targetFormatLabel() }}</span>
+              <span class="stage-desc">Preserving the sound, reducing the size</span>
+            </div>
+          </div>
+          <span class="stage-status-label">
+            @switch (convertStageStatus()) {
+              @case ('complete') {
+                Complete
+              }
+              @case ('in-progress') {
+                In progress
+              }
+              @default {
+                Up next
+              }
+            }
+          </span>
+        </div>
+
+        <!-- Etapa 3 -->
+        <div class="stage-item" [class]="prepareStageStatus()">
+          <div class="stage-left">
+            <span class="stage-indicator">
+              @if (prepareStageStatus() === 'complete') {
+                ✓
+              } @else {
+                <span class="inner-dot"></span>
+              }
+            </span>
+            <div class="stage-texts">
+              <span class="stage-title">Prepare your download</span>
+              <span class="stage-desc">Your converted file will be ready next</span>
+            </div>
+          </div>
+          <span class="stage-status-label">
+            @switch (prepareStageStatus()) {
+              @case ('complete') {
+                Complete
+              }
+              @case ('in-progress') {
+                In progress
+              }
+              @default {
+                Up next
+              }
+            }
+          </span>
+        </div>
+      </div>
+
+      <p class="security-note">Secure processing. No account required.</p>
+    </div>
+  </div>
+</section>
