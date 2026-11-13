@@ -1,3 +1,10 @@
 {
-  "conventionalCommits.scopes": ["footer", "header", "models", "audio-api", "step-indicator"]
+  "conventionalCommits.scopes": [
+    "footer",
+    "header",
+    "models",
+    "audio-api",
+    "step-indicator",
+    "upload and choose"
+  ]
 }
