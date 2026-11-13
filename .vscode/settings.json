@@ -5,6 +5,7 @@
     "models",
     "audio-api",
     "step-indicator",
-    "upload and choose"
+    "upload and choose",
+    "processing"
   ]
 }
