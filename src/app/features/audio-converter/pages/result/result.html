@@ -1,1 +1,117 @@
-<p>result works!</p>
+<!-- src/app/features/audio-converter/pages/result/result.html -->
+@if (result(); as res) {
+  <section class="result-page">
+    <!-- Stepper superior en paso 3 -->
+    <app-step-indicator [currentStep]="3" />
+
+    <!-- Encabezado Hero -->
+    <header class="hero-header">
+      <div class="success-badge">
+        <span class="check-icon">✓</span>
+        <span>Conversion complete</span>
+      </div>
+      <h1>Success! Your file is ready</h1>
+      <p class="subtitle">
+        Same sound.
+        @if (sizeComparison()?.isSmaller) {
+          A lighter file.
+        }
+        Your {{ convertedFormatLabel() }} is ready to go.
+      </p>
+    </header>
+
+    <!-- Contenedor principal homologado -->
+    <div class="main-content">
+      <div class="main-content-inner">
+        <!-- Comparativa Original vs Convertido -->
+        <div class="comparison-wrapper">
+          <!-- Tarjeta Original -->
+          <article class="file-card original">
+            <div class="card-top">
+              <span class="card-role">Original File</span>
+              <span class="format-badge">{{ originalFormatLabel() }}</span>
+            </div>
+
+            <div class="file-identity">
+              <div class="icon-box">
+                <i class="oi oi-music" aria-hidden="true"></i>
+              </div>
+              <p class="file-name" [title]="res.original.name">{{ res.original.name }}</p>
+            </div>
+
+            <div class="meta-rows">
+              <div class="meta-row">
+                <span class="meta-label">File size</span>
+                <span class="meta-value">{{ res.original.size_human }}</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Format</span>
+                <span class="meta-value">{{ originalFormatLabel() }}</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Conector central -->
+          <div class="arrow-connector" aria-hidden="true">
+            <span>→</span>
+          </div>
+
+          <!-- Tarjeta Convertida -->
+          <article class="file-card converted">
+            <div class="card-top">
+              <span class="card-role highlight">Converted File</span>
+              <span class="format-badge target">{{ convertedFormatLabel() }}</span>
+            </div>
+
+            <div class="file-identity">
+              <div class="icon-box target">
+                <img src="icons/Logo-AudioVerse.png" alt="Converted audio" />
+              </div>
+              <p class="file-name" [title]="res.converted.name">{{ res.converted.name }}</p>
+            </div>
+
+            <div class="meta-rows">
+              <div class="meta-row">
+                <span class="meta-label">File size</span>
+                <span class="meta-value highlight">{{ res.converted.size_human }}</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Format</span>
+                <span class="meta-value">{{ convertedFormatLabel() }}</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Píldora de ahorro de peso -->
+        @if (sizeComparison(); as diff) {
+          <div class="savings-banner" [class.larger]="!diff.isSmaller">
+            <span class="savings-strong">{{ diff.headline }}</span>
+            <span class="savings-sep">·</span>
+            <span class="savings-detail">{{ diff.detail }}</span>
+          </div>
+        }
+
+        <!-- Acciones principales -->
+        <div class="actions-group">
+          <button type="button" class="btn-download" (click)="downloadConvertedFile()">
+            <i class="oi oi-download" aria-hidden="true"></i>
+            <span>Download Converted Audio</span>
+          </button>
+
+          <button type="button" class="btn-secondary" (click)="convertAnother()">
+            <span>Convert another file</span>
+          </button>
+        </div>
+
+        <!-- Pie informativo y metadatos técnicos -->
+        <div class="result-footer-meta">
+          <span class="tech-specs">{{ technicalSpecsLabel() }}</span>
+          <span class="availability-note">
+            Processed in memory · Ready for immediate download
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+}
