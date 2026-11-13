@@ -10,16 +10,24 @@ import {
 @Injectable({ providedIn: 'root' })
 export class AudioApiService {
   private readonly http = inject(HttpClient);
-  // Ajusta la URL base según tu configuración de proxy o environment
   private readonly baseUrl = 'http://localhost:8000/api/audio';
 
   readonly currentFile = signal<File | null>(null);
   readonly targetFormat = signal<string>('');
   readonly uploadProgress = signal<number>(0);
   readonly conversionResult = signal<AudioConversionResponse | null>(null);
+  readonly conversionError = signal<string | null>(null);
 
   getSupportedFormats(): Observable<AudioFormatOption[]> {
     return this.http.get<AudioFormatOption[]>(`${this.baseUrl}/formats/`);
+  }
+
+  prepareConversion(file: File, format: string): void {
+    this.currentFile.set(file);
+    this.targetFormat.set(format);
+    this.uploadProgress.set(0);
+    this.conversionResult.set(null);
+    this.conversionError.set(null);
   }
 
   convertAudio(payload: ConversionRequestPayload): Observable<HttpEvent<AudioConversionResponse>> {
@@ -33,11 +41,6 @@ export class AudioApiService {
     if (payload.filename) {
       formData.append('filename', payload.filename);
     }
-
-    this.currentFile.set(payload.file);
-    this.targetFormat.set(payload.format);
-    this.uploadProgress.set(0);
-    this.conversionResult.set(null);
 
     return this.http
       .post<AudioConversionResponse>(`${this.baseUrl}/convert/`, formData, {
