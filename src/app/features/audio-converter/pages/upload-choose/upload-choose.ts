@@ -55,6 +55,10 @@ export class UploadChooseComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadSupportedFormats();
+    const previousError = this.audioApi.conversionError();
+    if (previousError) {
+      this.errorMessage.set(previousError);
+    }
   }
 
   private loadSupportedFormats(): void {
@@ -119,24 +123,7 @@ export class UploadChooseComponent implements OnInit {
 
     if (!file || !format || this.isSubmitting()) return;
 
-    this.isSubmitting.set(true);
-    this.errorMessage.set(null);
-
-    this.audioApi.convertAudio({ file, format }).subscribe({
-      next: (event) => {
-        if (event.type === HttpEventType.Response) {
-          this.isSubmitting.set(false);
-          this.router.navigate(['/result']);
-        }
-      },
-      error: (err) => {
-        this.isSubmitting.set(false);
-        const detail =
-          err?.error?.detail ||
-          err?.error?.file?.[0] ||
-          'Ocurrió un error al procesar el archivo de audio.';
-        this.errorMessage.set(detail);
-      },
-    });
+    this.audioApi.prepareConversion(file, format);
+    this.router.navigate(['/processing']);
   }
 }
