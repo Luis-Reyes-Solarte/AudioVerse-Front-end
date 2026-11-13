@@ -1,6 +1,10 @@
+// src/app/features/audio-converter/pages/upload-choose/upload-choose.ts
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpEventType } from '@angular/common/http';
+import { FileUploadModule, FileSelectEvent } from '@openng/optimus-ui/fileupload';
+import { SelectModule } from '@openng/optimus-ui/select';
 import { AudioApiService } from '../../../../core/services/audio-api.service';
 import { AudioFormatOption } from '../../../../core/models/audio.models';
 import { StepIndicatorComponent } from '../../../../shared/components/step-indicator/step-indicator';
@@ -10,7 +14,7 @@ export type OperationMode = 'convert' | 'transcribe';
 @Component({
   selector: 'app-upload-choose',
   standalone: true,
-  imports: [StepIndicatorComponent],
+  imports: [FormsModule, FileUploadModule, SelectModule, StepIndicatorComponent],
   templateUrl: './upload-choose.html',
   styleUrl: './upload-choose.scss',
 })
@@ -27,16 +31,16 @@ export class UploadChooseComponent implements OnInit {
   readonly availableFormats = signal<AudioFormatOption[]>([]);
   readonly selectedFile = signal<File | null>(null);
   readonly selectedOperation = signal<OperationMode>('convert');
-  readonly selectedFormat = signal<string>('');
-  readonly isDragging = signal<boolean>(false);
+  readonly selectedFormat = signal<string | null>(null);
   readonly isSubmitting = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
 
   // Validación computada para habilitar el botón "Process Audio"
   readonly canProcess = computed(() => {
     const hasFile = this.selectedFile() !== null;
+    const format = this.selectedFormat();
     const isConvertReady =
-      this.selectedOperation() === 'convert' && this.selectedFormat().trim().length > 0;
+      this.selectedOperation() === 'convert' && !!format && format.trim().length > 0;
     return hasFile && isConvertReady && !this.isSubmitting();
   });
 
@@ -57,7 +61,6 @@ export class UploadChooseComponent implements OnInit {
     this.audioApi.getSupportedFormats().subscribe({
       next: (formats) => this.availableFormats.set(formats),
       error: () => {
-        // Respaldo en caso de que el servidor aún no responda
         this.availableFormats.set([
           { value: 'mp3', label: 'MP3', mime: 'audio/mpeg', lossy: true },
           { value: 'wav', label: 'WAV', mime: 'audio/wav', lossy: false },
@@ -69,67 +72,38 @@ export class UploadChooseComponent implements OnInit {
     });
   }
 
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragging.set(true);
-  }
-
-  onDragLeave(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragging.set(false);
-  }
-
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragging.set(false);
-
-    const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      this.handleFileSelection(files[0]);
-    }
-  }
-
-  onFileInputChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.handleFileSelection(input.files[0]);
-      input.value = '';
-    }
-  }
-
-  private handleFileSelection(file: File): void {
+  onFileSelect(event: FileSelectEvent): void {
     this.errorMessage.set(null);
+    const file = event.currentFiles?.[0] ?? event.files?.[0];
+
+    if (!file) return;
 
     if (file.size === 0) {
       this.errorMessage.set('El archivo seleccionado está vacío.');
+      this.selectedFile.set(null);
       return;
     }
 
     if (file.size > this.maxFileSizeBytes) {
       this.errorMessage.set(`El archivo supera el límite permitido de ${this.maxFileSizeLabel}.`);
+      this.selectedFile.set(null);
       return;
     }
 
     this.selectedFile.set(file);
   }
 
-  removeFile(event: Event): void {
-    event.stopPropagation();
+  onFileClear(clearCallback?: () => void): void {
+    if (clearCallback) {
+      clearCallback();
+    }
     this.selectedFile.set(null);
     this.errorMessage.set(null);
   }
 
   selectOperation(mode: OperationMode): void {
-    if (mode === 'transcribe') return; // Función futura
+    if (mode === 'transcribe') return;
     this.selectedOperation.set(mode);
-  }
-
-  onFormatChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.selectedFormat.set(select.value);
   }
 
   formatFileSize(bytes: number): string {

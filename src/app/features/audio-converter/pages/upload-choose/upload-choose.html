@@ -1,3 +1,4 @@
+<!-- src/app/features/audio-converter/pages/upload-choose/upload-choose.html -->
 <section class="upload-page">
   <!-- Stepper superior -->
   <app-step-indicator [currentStep]="1" />
@@ -9,131 +10,151 @@
       One file. Two possibilities. Change its format or turn every word into text.
     </p>
   </header>
+  <div class="main-content">
+    <div class="main-content-inner">
+      <!-- Zona Drag & Drop con OptimusUI FileUpload -->
+      <div class="dropzone-container">
+        <p-fileupload
+          name="audioFile"
+          mode="advanced"
+          accept="audio/*"
+          [multiple]="false"
+          [customUpload]="true"
+          [maxFileSize]="maxFileSizeBytes"
+          [showUploadButton]="false"
+          [showCancelButton]="false"
+          (onSelect)="onFileSelect($event)"
+          (onClear)="onFileClear()"
+        >
+          <!-- Ocultamos la barra de herramientas superior por defecto de op-fileupload -->
+          <!-- <ng-template #header></ng-template> -->
 
-  <!-- Zona Drag & Drop -->
-  <div
-    class="dropzone"
-    [class.dragging]="isDragging()"
-    [class.has-file]="selectedFile() !== null"
-    (dragover)="onDragOver($event)"
-    (dragleave)="onDragLeave($event)"
-    (drop)="onDrop($event)"
-    (click)="fileInput.click()"
-    role="button"
-    tabindex="0"
-    (keydown.enter)="fileInput.click()"
-  >
-    <input
-      #fileInput
-      type="file"
-      accept="audio/*,video/*"
-      hidden
-      (change)="onFileInputChange($event)"
-    />
+          <!-- Estado vacío (Drag & Drop) -->
+          <ng-template #empty let-chooseCallback="chooseCallback">
+            <div
+              class="dropzone-empty"
+              (click)="chooseCallback()"
+              role="button"
+              tabindex="0"
+              (keydown.enter)="chooseCallback()"
+            >
+              <div class="dropzone-icon">
+                <img src="icons/Logo-AudioVerse.png" alt="AudioVerseIcon" />
+              </div>
+              <p class="dropzone-title">Drag &amp; drop your audio here</p>
+              <p class="dropzone-hint">Audio files only · Up to {{ maxFileSizeLabel }} per file</p>
 
-    @if (!selectedFile()) {
-      <div class="dropzone-icon">
-        <i class="oi oi-waveform" aria-hidden="true"></i>
+              <div class="format-badges">
+                @for (badge of quickBadges; track badge) {
+                  <span class="badge">{{ badge }}</span>
+                }
+              </div>
+            </div>
+          </ng-template>
+
+          <!-- Estado con archivo cargado -->
+          <ng-template #content let-files let-removeFileCallback="removeFileCallback">
+            @if (files && files.length > 0) {
+              <div class="dropzone-filled">
+                <div class="selected-file-card">
+                  <div class="file-icon">
+                    <i class="oi oi-music" aria-hidden="true"></i>
+                  </div>
+                  <div class="file-details">
+                    <span class="file-name">{{ files[0].name }}</span>
+                    <span class="file-size">{{ formatFileSize(files[0].size) }}</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn-remove"
+                    (click)="removeFileCallback($event, 0); onFileClear()"
+                    title="Quitar archivo"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            }
+          </ng-template>
+        </p-fileupload>
       </div>
-      <p class="dropzone-title">Drag &amp; drop your audio here, or <span>browse files</span></p>
-      <p class="dropzone-hint">Audio files only · Up to {{ maxFileSizeLabel }} per file</p>
 
-      <div class="format-badges">
-        @for (badge of quickBadges; track badge) {
-          <span class="badge">{{ badge }}</span>
-        }
+      <!-- Mensaje de error de validación o API -->
+      @if (errorMessage()) {
+        <div class="error-banner" role="alert">
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <!-- Tarjetas de selección de operación -->
+      <div class="operations-grid">
+        <!-- Opción 1: Convertir Audio con OptimusUI Select -->
+        <div
+          class="operation-card"
+          [class.selected]="selectedOperation() === 'convert'"
+          (click)="selectOperation('convert')"
+        >
+          <div class="card-header">
+            <div class="card-title">
+              <i class="oi oi-waveform" aria-hidden="true"></i>
+              <h2>Convert audio</h2>
+            </div>
+            <span class="radio-circle" [class.checked]="selectedOperation() === 'convert'"></span>
+          </div>
+
+          <div class="select-wrapper" (click)="$event.stopPropagation()">
+            <p-select
+              [options]="availableFormats()"
+              [(ngModel)]="selectedFormat"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Convert to..."
+              styleClass="audio-format-select"
+              appendTo="body"
+            />
+          </div>
+
+          <p class="card-footer-hint">Available formats: {{ availableFormatsSummary() }}</p>
+        </div>
+
+        <!-- Opción 2: Transcribir a Texto (Deshabilitada / Próximamente) -->
+        <div class="operation-card disabled" aria-disabled="true">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="oi oi-sparkles" aria-hidden="true"></i>
+              <h2>Transcribe to Text</h2>
+            </div>
+            <span class="radio-circle"></span>
+          </div>
+
+          <p class="card-description">
+            Turn speech into clear, editable text. Great for interviews, meetings, and ideas.
+          </p>
+
+          <div class="ai-tag">
+            <span class="dot"></span>
+            <span>Powered by AI · Coming soon</span>
+          </div>
+        </div>
       </div>
-    } @else {
-      <div class="selected-file-card">
-        <div class="file-icon">
-          <i class="oi oi-music" aria-hidden="true"></i>
-        </div>
-        <div class="file-details">
-          <span class="file-name">{{ selectedFile()!.name }}</span>
-          <span class="file-size">{{ formatFileSize(selectedFile()!.size) }}</span>
-        </div>
+
+      <!-- Botón de acción principal -->
+      <div class="action-area">
         <button
           type="button"
-          class="btn-remove"
-          (click)="removeFile($event)"
-          title="Quitar archivo"
+          class="btn-process"
+          [disabled]="!canProcess()"
+          (click)="processAudio()"
         >
-          ✕
-        </button>
-      </div>
-    }
-  </div>
-
-  <!-- Mensaje de error de validación o API -->
-  @if (errorMessage()) {
-    <div class="error-banner" role="alert">
-      <span>{{ errorMessage() }}</span>
-    </div>
-  }
-
-  <!-- Tarjetas de selección de operación -->
-  <div class="operations-grid">
-    <!-- Opción 1: Convertir Audio -->
-    <div
-      class="operation-card"
-      [class.selected]="selectedOperation() === 'convert'"
-      (click)="selectOperation('convert')"
-    >
-      <div class="card-header">
-        <div class="card-title">
-          <i class="oi oi-waveform" aria-hidden="true"></i>
-          <h2>Convert audio</h2>
-        </div>
-        <span class="radio-circle" [class.checked]="selectedOperation() === 'convert'"></span>
-      </div>
-
-      <div class="select-wrapper" (click)="$event.stopPropagation()">
-        <select
-          aria-label="Convert to format"
-          [value]="selectedFormat()"
-          (change)="onFormatChange($event)"
-        >
-          <option value="" disabled selected>Convert to...</option>
-          @for (fmt of availableFormats(); track fmt.value) {
-            <option [value]="fmt.value">{{ fmt.label }}</option>
+          @if (isSubmitting()) {
+            <span>Converting audio...</span>
+          } @else {
+            <span>→ Process Audio</span>
           }
-        </select>
-      </div>
+        </button>
 
-      <p class="card-footer-hint">Available formats: {{ availableFormatsSummary() }}</p>
-    </div>
-
-    <!-- Opción 2: Transcribir a Texto (Deshabilitada / Próximamente) -->
-    <div class="operation-card disabled" aria-disabled="true">
-      <div class="card-header">
-        <div class="card-title">
-          <i class="oi oi-sparkles" aria-hidden="true"></i>
-          <h2>Transcribe to Text</h2>
-        </div>
-        <span class="radio-circle"></span>
-      </div>
-
-      <p class="card-description">
-        Turn speech into clear, editable text. Great for interviews, meetings, and ideas.
-      </p>
-
-      <div class="ai-tag">
-        <span class="dot"></span>
-        <span>Powered by AI · Coming soon</span>
+        <p class="action-helper">Upload an audio file and choose an operation to continue.</p>
       </div>
     </div>
-  </div>
-
-  <!-- Botón de acción principal -->
-  <div class="action-area">
-    <button type="button" class="btn-process" [disabled]="!canProcess()" (click)="processAudio()">
-      @if (isSubmitting()) {
-        <span>Converting audio...</span>
-      } @else {
-        <span>→ Process Audio</span>
-      }
-    </button>
-
-    <p class="action-helper">Upload an audio file and choose an operation to continue.</p>
   </div>
 </section>
