@@ -7,7 +7,7 @@ un archivo de audio de cualquier formato a otro. Además, podrá ser usado
 también para transcribir los audios, siendo apoyado por medio de librerías y,
 a futuro, por medio de inteligencia artificial.
 
-> [!Important]Importante
+> [!Important] Importante
 > Es necesario tener en conjunto su back-end, que está en el repositorio:
 > [AudioVerse Back-end](https://github.com/Luis-Reyes-Solarte/AudioVerse-Back-end.git)
 
