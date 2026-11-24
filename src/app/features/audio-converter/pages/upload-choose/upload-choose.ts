@@ -38,10 +38,14 @@ export class UploadChooseComponent implements OnInit {
   // Validación computada para habilitar el botón "Process Audio"
   readonly canProcess = computed(() => {
     const hasFile = this.selectedFile() !== null;
+    if (!hasFile || this.isSubmitting()) return false;
+
+    if (this.selectedOperation() === 'transcribe') {
+      return true;
+    }
+
     const format = this.selectedFormat();
-    const isConvertReady =
-      this.selectedOperation() === 'convert' && !!format && format.trim().length > 0;
-    return hasFile && isConvertReady && !this.isSubmitting();
+    return !!format && format.trim().length > 0;
   });
 
   readonly availableFormatsSummary = computed(() => {
@@ -106,7 +110,6 @@ export class UploadChooseComponent implements OnInit {
   }
 
   selectOperation(mode: OperationMode): void {
-    if (mode === 'transcribe') return;
     this.selectedOperation.set(mode);
   }
 
@@ -119,9 +122,16 @@ export class UploadChooseComponent implements OnInit {
 
   processAudio(): void {
     const file = this.selectedFile();
-    const format = this.selectedFormat();
+    if (!file || this.isSubmitting()) return;
 
-    if (!file || !format || this.isSubmitting()) return;
+    if (this.selectedOperation() === 'transcribe') {
+      this.audioApi.prepareTranscription(file);
+      this.router.navigate(['/processing']);
+      return;
+    }
+
+    const format = this.selectedFormat();
+    if (!format) return;
 
     this.audioApi.prepareConversion(file, format);
     this.router.navigate(['/processing']);
