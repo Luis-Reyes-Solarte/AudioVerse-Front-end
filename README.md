@@ -11,6 +11,7 @@ a futuro, por medio de inteligencia artificial.
 
 - OptimusUI.
 - Iconos.
+- Docx.
 
 ## Requisitos
 
@@ -29,7 +30,8 @@ cd front-end
 
 # Instalar dependencias
 ng add @openng/optimus-ui
-npm install @openng/icons
+npm install @openng/
+npm install docx
 ```
 
 ## Servidor de desarrollo
