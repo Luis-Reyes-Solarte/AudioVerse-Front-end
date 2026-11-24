@@ -1,3 +1,4 @@
+// src/app/core/models/audio.models.ts
 export interface AudioFormatOption {
   value: string;
   label: string;
@@ -11,6 +12,7 @@ export interface AudioFileMetadata {
   size_human: string;
   format: string | null;
   duration?: number;
+  duration_formatted?: string | null;
   bitrate?: number;
   sample_rate?: number;
   channels?: number;
@@ -21,6 +23,21 @@ export interface AudioFileMetadata {
 export interface AudioConversionResponse {
   original: AudioFileMetadata;
   converted: AudioFileMetadata;
+}
+
+export interface TranscriptSegment {
+  timestamp: string;
+  text: string;
+}
+
+export interface AudioTranscriptionResponse {
+  original: AudioFileMetadata;
+  transcript: {
+    language: string;
+    speakers_count: number;
+    segments: TranscriptSegment[];
+    full_text: string;
+  };
 }
 
 export interface ConversionRequestPayload {
