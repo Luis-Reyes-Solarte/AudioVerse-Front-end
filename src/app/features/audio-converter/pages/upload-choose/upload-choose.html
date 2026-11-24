@@ -117,14 +117,21 @@
           <p class="card-footer-hint">Available formats: {{ availableFormatsSummary() }}</p>
         </div>
 
-        <!-- Opción 2: Transcribir a Texto (Deshabilitada / Próximamente) -->
-        <div class="operation-card disabled" aria-disabled="true">
+        <!-- Opción 2: Transcribir a Texto (Activa con Gemini) -->
+        <div
+          class="operation-card"
+          [class.selected]="selectedOperation() === 'transcribe'"
+          (click)="selectOperation('transcribe')"
+        >
           <div class="card-header">
             <div class="card-title">
               <i class="oi oi-sparkles" aria-hidden="true"></i>
               <h2>Transcribe to Text</h2>
             </div>
-            <span class="radio-circle"></span>
+            <span
+              class="radio-circle"
+              [class.checked]="selectedOperation() === 'transcribe'"
+            ></span>
           </div>
 
           <p class="card-description">
@@ -133,7 +140,7 @@
 
           <div class="ai-tag">
             <span class="dot"></span>
-            <span>Powered by AI · Coming soon</span>
+            <span>Powered by AI</span>
           </div>
         </div>
       </div>
