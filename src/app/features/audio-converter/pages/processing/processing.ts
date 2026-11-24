@@ -61,18 +61,62 @@ export class ProcessingComponent implements OnInit, OnDestroy {
     return 'complete';
   });
 
+  // Añadir en ProcessingComponent (processing.ts)
+  readonly mode = this.audioApi.operationMode;
+  readonly isTranscribe = computed(() => this.mode() === 'transcribe');
+
+  // En ngOnInit():
   ngOnInit(): void {
     const currentFile = this.file();
     const format = this.targetFormat();
 
-    // Si el usuario recarga la página directamente en /processing sin archivo, volver al inicio
-    if (!currentFile || !format) {
+    if (!currentFile || (!this.isTranscribe() && !format)) {
       this.router.navigate(['/']);
       return;
     }
 
     this.extractLocalDuration(currentFile);
-    this.startConversion(currentFile, format);
+    if (this.isTranscribe()) {
+      this.startTranscription(currentFile);
+    } else {
+      this.startConversion(currentFile, format);
+    }
+  }
+
+  private startTranscription(file: File): void {
+    this.progressTimer = setInterval(() => {
+      const uploadPct = this.audioApi.uploadProgress();
+      const mappedUpload = Math.round(uploadPct * 0.4);
+
+      this.progress.update((current) => {
+        if (current < mappedUpload) return mappedUpload;
+        if (uploadPct >= 100 && current < 92) {
+          const step = current < 70 ? 3 : 1;
+          return Math.min(92, current + step);
+        }
+        return current;
+      });
+    }, 300);
+
+    this.audioApi.transcribeAudio(file).subscribe({
+      next: (event) => {
+        if (event.type === HttpEventType.Response) {
+          if (this.progressTimer) clearInterval(this.progressTimer);
+          this.progress.set(100);
+
+          this.redirectTimeout = setTimeout(() => {
+            this.router.navigate(['/transcript']);
+          }, 650);
+        }
+      },
+      error: (err) => {
+        if (this.progressTimer) clearInterval(this.progressTimer);
+        const detail =
+          err?.error?.detail || err?.error?.file?.[0] || 'No se pudo transcribir el audio con IA.';
+        this.audioApi.conversionError.set(detail);
+        this.router.navigate(['/']);
+      },
+    });
   }
 
   ngOnDestroy(): void {
